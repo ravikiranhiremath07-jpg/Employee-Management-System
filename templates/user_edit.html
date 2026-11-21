@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit User Account: {{ target_user.username }} - EMS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a href="{% url 'user_list' %}">User Accounts</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit {{ target_user.username }}</li>
+        </ol>
+    </nav>
+    <h3 class="fw-bold">Edit Account: {{ target_user.username }}</h3>
+    <p class="text-muted small">Update role-based access permissions and login activation status.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card form-card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-person-gear me-2"></i>Account Configuration</h5>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" value="{{ target_user.username }}" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="text" class="form-control" value="{{ target_user.email }}" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="roleSelect">Assigned System Role <span class="text-danger">*</span></label>
+                        <select name="role" id="roleSelect" class="form-select">
+                            <option value="ADMIN" {% if profile.role == "ADMIN" %}selected{% endif %}>Admin (Full Administrative Access)</option>
+                            <option value="HR" {% if profile.role == "HR" %}selected{% endif %}>HR Manager (Employee, Attendance, Leave &amp; Reports Access)</option>
+                            <option value="EMPLOYEE" {% if profile.role == "EMPLOYEE" %}selected{% endif %}>Employee (Self-service Portal Access)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" name="is_active" id="isActiveSwitch" {% if target_user.is_active %}checked{% endif %}>
+                        <label class="form-check-label fw-bold" for="isActiveSwitch">Account Active (Allows Login)</label>
+                    </div>
+                </div>
+                <div class="card-footer bg-light p-3 d-flex justify-content-end gap-2">
+                    <a href="{% url 'user_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check-circle me-1"></i> Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}Payroll & Salary Management - EMS{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        <h3 class="fw-bold mb-0">Payroll &amp; Salary Management</h3>
+        <p class="text-muted small mb-0">Manage monthly employee compensations, allowances, deductions, and pay slips.</p>
+    </div>
+    <div>
+        <a href="{% url 'salary_add' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> Create Salary Record
+        </a>
+    </div>
+</div>
+
+<!-- Payroll Totals Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+            <span class="text-muted small fw-bold">TOTAL BASIC SALARIES (FILTERED)</span>
+            <div class="fs-3 fw-bold text-dark">₹{{ total_basic|floatformat:2 }}</div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+            <span class="text-muted small fw-bold text-success">TOTAL NET DISBURSED (FILTERED)</span>
+            <div class="fs-3 fw-bold text-success">₹{{ total_net|floatformat:2 }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Form -->
+<div class="card form-card mb-4">
+    <div class="card-body p-3">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <input type="text" name="search" class="form-control" placeholder="Search employee..." value="{{ search_query }}">
+            </div>
+            <div class="col-md-2">
+                <select name="month" class="form-select">
+                    <option value="">All Months</option>
+                    <option value="1" {% if month_filter == "1" %}selected{% endif %}>January</option>
+                    <option value="2" {% if month_filter == "2" %}selected{% endif %}>February</option>
+                    <option value="3" {% if month_filter == "3" %}selected{% endif %}>March</option>
+                    <option value="4" {% if month_filter == "4" %}selected{% endif %}>April</option>
+                    <option value="5" {% if month_filter == "5" %}selected{% endif %}>May</option>
+                    <option value="6" {% if month_filter == "6" %}selected{% endif %}>June</option>
+                    <option value="7" {% if month_filter == "7" %}selected{% endif %}>July</option>
+                    <option value="8" {% if month_filter == "8" %}selected{% endif %}>August</option>
+                    <option value="9" {% if month_filter == "9" %}selected{% endif %}>September</option>
+                    <option value="10" {% if month_filter == "10" %}selected{% endif %}>October</option>
+                    <option value="11" {% if month_filter == "11" %}selected{% endif %}>November</option>
+                    <option value="12" {% if month_filter == "12" %}selected{% endif %}>December</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="year" class="form-select">
+                    <option value="">All Years</option>
+                    {% for y in years %}
+                    <option value="{{ y }}" {% if year_filter == y|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="PAID" {% if status_filter == "PAID" %}selected{% endif %}>Paid</option>
+                    <option value="PENDING" {% if status_filter == "PENDING" %}selected{% endif %}>Pending</option>
+                    <option value="FAILED" {% if status_filter == "FAILED" %}selected{% endif %}>Failed</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter"></i> Apply</button>
+                <a href="{% url 'salary_list' %}" class="btn btn-outline-secondary" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card form-card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 custom-table">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Month / Year</th>
+                        <th>Basic</th>
+                        <th>Allowances (+)</th>
+                        <th>Deductions (-)</th>
+                        <th>Net Salary</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sal in page_obj %}
+                    <tr class="table-row-hover">
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="emp-table-avatar me-2 bg-light text-primary">
+                                    {{ sal.employee.first_name|slice:":1" }}{{ sal.employee.last_name|slice:":1" }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ sal.employee.full_name }}</div>
+                                    <small class="text-muted">{{ sal.employee.emp_id }} &bull; {{ sal.employee.department.name|default:"Unassigned" }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td><strong>{{ sal.get_month_display }} {{ sal.year }}</strong></td>
+                        <td>₹{{ sal.basic_salary }}</td>
+                        <td class="text-success">+₹{{ sal.allowances }}</td>
+                        <td class="text-danger">-₹{{ sal.deductions }}</td>
+                        <td><strong class="text-primary fs-6">₹{{ sal.net_salary }}</strong></td>
+                        <td>
+                            {% if sal.payment_status == 'PAID' %}
+                            <span class="badge bg-success">Paid</span>
+                            {% elif sal.payment_status == 'FAILED' %}
+                            <span class="badge bg-danger">Failed</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'salary_detail' sal.pk %}" class="btn btn-outline-primary" title="View / Print Pay Slip">
+                                    <i class="bi bi-receipt"></i> Slip
+                                </a>
+                                <a href="{% url 'salary_edit' sal.pk %}" class="btn btn-outline-secondary" title="Edit Record">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-cash-coin fs-1 d-block mb-2 text-secondary"></i>
+                            No salary records found matching your filters.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3">
+        <small class="text-muted">Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} salary records</small>
+        <ul class="pagination pagination-sm mb-0">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&month={{ month_filter }}&year={{ year_filter }}&status={{ status_filter }}&search={{ search_query }}">Previous</a></li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Previous</span></li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}&month={{ month_filter }}&year={{ year_filter }}&status={{ status_filter }}&search={{ search_query }}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&month={{ month_filter }}&year={{ year_filter }}&status={{ status_filter }}&search={{ search_query }}">Next</a></li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Next</span></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

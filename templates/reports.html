@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports & Analytics Center - EMS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h3 class="fw-bold mb-0">Reports &amp; Analytics Center</h3>
+    <p class="text-muted small mb-0">Generate comprehensive summaries, department breakdowns, and export dataset records in CSV format.</p>
+</div>
+
+<!-- Overview Metrics Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-label">Total Employees</div>
+                    <div class="stat-value text-dark">{{ total_employees }}</div>
+                </div>
+                <div class="stat-icon primary"><i class="bi bi-people-fill"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-label">Total Departments</div>
+                    <div class="stat-value text-dark">{{ total_departments }}</div>
+                </div>
+                <div class="stat-icon info"><i class="bi bi-diagram-3-fill"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-label">Attendance Records</div>
+                    <div class="stat-value text-success">{{ total_attendances }}</div>
+                </div>
+                <div class="stat-icon success"><i class="bi bi-calendar-check-fill"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-label">Payroll Statements</div>
+                    <div class="stat-value text-primary">{{ total_salaries }}</div>
+                </div>
+                <div class="stat-icon warning"><i class="bi bi-cash-stack"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Hub Cards -->
+<div class="row g-4">
+    <!-- 1. Employee Report Export -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card form-card h-100">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="stat-icon primary me-3" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                        <i class="bi bi-person-lines-fill"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">Employees Report</h5>
+                        <small class="text-muted">Master roster &amp; demographics</small>
+                    </div>
+                </div>
+                <p class="text-muted small mb-4">Export all employee personal details, contacts, joining dates, designations, departments and status.</p>
+                <form method="GET" action="{% url 'export_employees_csv' %}" class="mt-auto">
+                    <div class="mb-2">
+                        <select name="department" class="form-select form-select-sm">
+                            <option value="">All Departments</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept.id }}">{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <select name="status" class="form-select form-select-sm">
+                            <option value="">All Statuses</option>
+                            <option value="ACTIVE">Active Only</option>
+                            <option value="INACTIVE">Inactive Only</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary btn-sm w-100">
+                        <i class="bi bi-download me-1"></i> Download Employees CSV
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Attendance Report Export -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card form-card h-100">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="stat-icon success me-3" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                        <i class="bi bi-calendar2-check-fill"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">Attendance Report</h5>
+                        <small class="text-muted">Presence, check-in, check-out</small>
+                    </div>
+                </div>
+                <p class="text-muted small mb-4">Export chronological attendance records filtered by month, year, or specific department.</p>
+                <form method="GET" action="{% url 'export_attendance_csv' %}" class="mt-auto">
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <select name="month" class="form-select form-select-sm">
+                                <option value="">All Months</option>
+                                <option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option>
+                                <option value="4">Apr</option><option value="5">May</option><option value="6">Jun</option>
+                                <option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option>
+                                <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <select name="year" class="form-select form-select-sm">
+                                <option value="">All Years</option>
+                                {% for y in years %}
+                                <option value="{{ y }}">{{ y }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <select name="department" class="form-select form-select-sm">
+                            <option value="">All Departments</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept.id }}">{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-outline-success btn-sm w-100">
+                        <i class="bi bi-download me-1"></i> Download Attendance CSV
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Leave Applications Report Export -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card form-card h-100">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="stat-icon warning me-3" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                        <i class="bi bi-airplane-fill"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">Leave Applications</h5>
+                        <small class="text-muted">Requests, types &amp; reviews</small>
+                    </div>
+                </div>
+                <p class="text-muted small mb-4">Export all submitted leave records with duration, applicant reasons, and approval status.</p>
+                <form method="GET" action="{% url 'export_leaves_csv' %}" class="mt-auto">
+                    <div class="mb-2">
+                        <select name="status" class="form-select form-select-sm">
+                            <option value="">All Statuses</option>
+                            <option value="APPROVED">Approved Only</option>
+                            <option value="PENDING">Pending Only</option>
+                            <option value="REJECTED">Rejected Only</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <select name="leave_type" class="form-select form-select-sm">
+                            <option value="">All Leave Types</option>
+                            <option value="CASUAL">Casual Leave</option>
+                            <option value="SICK">Sick Leave</option>
+                            <option value="EARNED">Earned Leave</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-outline-warning text-dark btn-sm w-100">
+                        <i class="bi bi-download me-1"></i> Download Leave Report CSV
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Payroll Statements Report Export -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card form-card h-100">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="stat-icon purple me-3" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">Payroll &amp; Salaries</h5>
+                        <small class="text-muted">Disbursements &amp; deductions</small>
+                    </div>
+                </div>
+                <p class="text-muted small mb-4">Export salary statements with breakdown of basic compensation, allowances, deductions, and net payouts.</p>
+                <form method="GET" action="{% url 'export_salaries_csv' %}" class="mt-auto">
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <select name="month" class="form-select form-select-sm">
+                                <option value="">All Months</option>
+                                <option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option>
+                                <option value="4">Apr</option><option value="5">May</option><option value="6">Jun</option>
+                                <option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option>
+                                <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <select name="year" class="form-select form-select-sm">
+                                <option value="">All Years</option>
+                                {% for y in years %}
+                                <option value="{{ y }}">{{ y }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-outline-dark btn-sm w-100">
+                        <i class="bi bi-download me-1"></i> Download Salary CSV
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Department Summary Report -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card form-card h-100">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="stat-icon info me-3" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                        <i class="bi bi-diagram-3"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">Departments Roster</h5>
+                        <small class="text-muted">Headcounts &amp; structure</small>
+                    </div>
+                </div>
+                <p class="text-muted small mb-4">Export department codes, department names, total assigned employees, and active workforce counts.</p>
+                <div class="mt-auto">
+                    <a href="{% url 'export_departments_csv' %}" class="btn btn-outline-info text-dark btn-sm w-100">
+                        <i class="bi bi-download me-1"></i> Download Departments CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

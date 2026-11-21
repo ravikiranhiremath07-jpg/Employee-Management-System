@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Action - EMS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+    <div class="col-md-7 col-lg-5">
+        <div class="card form-card shadow border-danger">
+            <div class="card-header bg-danger text-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Action</h5>
+            </div>
+            <div class="card-body p-4 text-center">
+                <i class="bi bi-trash-fill text-danger fs-1 d-block mb-3"></i>
+                <h5 class="fw-bold mb-2">Are you sure?</h5>
+                <p class="text-muted">You are about to modify or remove:</p>
+                <div class="p-2 bg-light rounded border fw-bold text-dark mb-4">
+                    {{ object_name }}
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    {% if allow_deactivate %}
+                    <div class="mb-4 text-start">
+                        <label class="form-label fw-bold">Select Action Type:</label>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="action_type" id="deactivateRadio" value="deactivate" checked>
+                            <label class="form-check-label" for="deactivateRadio">
+                                <strong>Deactivate Employee</strong> (Recommended - preserves attendance and salary history)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="action_type" id="deleteRadio" value="delete">
+                            <label class="form-check-label text-danger" for="deleteRadio">
+                                <strong>Permanently Delete</strong> (Irreversible - removes all associated profile data)
+                            </label>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="{% url cancel_url %}" class="btn btn-secondary px-4">Cancel</a>
+                        <button type="submit" class="btn btn-danger px-4">Confirm &amp; Proceed</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

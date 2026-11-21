@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}My Attendance History - EMS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h3 class="fw-bold mb-0">My Attendance History</h3>
+    <p class="text-muted small mb-0">Track your daily presence, hours, and overall attendance percentage.</p>
+</div>
+
+<!-- Attendance Performance Banner -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-3">
+        <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+            <span class="text-muted small fw-bold">TOTAL DAYS RECORDED</span>
+            <div class="fs-3 fw-bold text-dark">{{ total_records }}</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+            <span class="text-muted small fw-bold text-success">PRESENT DAYS</span>
+            <div class="fs-3 fw-bold text-success">{{ present_days }}</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+            <span class="text-muted small fw-bold text-warning">HALF DAYS</span>
+            <div class="fs-3 fw-bold text-warning">{{ half_days }}</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+            <span class="text-muted small fw-bold text-primary">ATTENDANCE RATE</span>
+            <div class="fs-3 fw-bold text-primary">{{ att_pct }}%</div>
+        </div>
+    </div>
+</div>
+
+<div class="card form-card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-clock-history me-2"></i>My Attendance Logs</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 custom-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Day</th>
+                        <th>Status</th>
+                        <th>Check In</th>
+                        <th>Check Out</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for att in page_obj %}
+                    <tr class="table-row-hover">
+                        <td><strong>{{ att.date|date:"d M Y" }}</strong></td>
+                        <td>{{ att.date|date:"l" }}</td>
+                        <td>
+                            {% if att.status == 'PRESENT' %}
+                            <span class="badge bg-success">Present</span>
+                            {% elif att.status == 'HALF_DAY' %}
+                            <span class="badge bg-warning text-dark">Half Day</span>
+                            {% elif att.status == 'ON_LEAVE' %}
+                            <span class="badge bg-info text-dark">On Leave</span>
+                            {% else %}
+                            <span class="badge bg-danger">Absent</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ att.check_in_time|default:"--" }}</td>
+                        <td>{{ att.check_out_time|default:"--" }}</td>
+                        <td><small class="text-muted">{{ att.notes|default:"--" }}</small></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-calendar-x fs-1 d-block mb-2 text-secondary"></i>
+                            No attendance records logged for your profile yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3">
+        <small class="text-muted">Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} days</small>
+        <ul class="pagination pagination-sm mb-0">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Previous</span></li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Next</span></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}My Leave Applications - EMS{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        <h3 class="fw-bold mb-0">My Leave Applications</h3>
+        <p class="text-muted small mb-0">Check status of your leave requests and review available leave balances.</p>
+    </div>
+    <div>
+        <a href="{% url 'leave_apply' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> Apply for Leave
+        </a>
+    </div>
+</div>
+
+<!-- Remaining Balances -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+            <span class="text-muted small fw-bold">CASUAL LEAVE</span>
+            <div class="fs-2 fw-bold text-primary">{{ balance.casual_leave }} Days</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+            <span class="text-muted small fw-bold">SICK LEAVE</span>
+            <div class="fs-2 fw-bold text-success">{{ balance.sick_leave }} Days</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+            <span class="text-muted small fw-bold">EARNED LEAVE</span>
+            <div class="fs-2 fw-bold text-warning">{{ balance.earned_leave }} Days</div>
+        </div>
+    </div>
+</div>
+
+<div class="card form-card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-airplane-fill me-2"></i>My Leave History</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 custom-table">
+                <thead>
+                    <tr>
+                        <th>Leave Type</th>
+                        <th>Duration</th>
+                        <th>Total Days</th>
+                        <th>Reason</th>
+                        <th>Applied On</th>
+                        <th>Status</th>
+                        <th>Reviewer Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lv in page_obj %}
+                    <tr class="table-row-hover">
+                        <td><strong>{{ lv.get_leave_type_display }}</strong></td>
+                        <td>{{ lv.start_date|date:"d M Y" }} to {{ lv.end_date|date:"d M Y" }}</td>
+                        <td><span class="badge bg-light text-dark border">{{ lv.total_days }}</span></td>
+                        <td><small class="text-muted">{{ lv.reason|truncatechars:35 }}</small></td>
+                        <td><small class="text-muted">{{ lv.applied_on|date:"d M Y, h:i A" }}</small></td>
+                        <td>
+                            {% if lv.status == 'APPROVED' %}
+                            <span class="badge bg-success">Approved</span>
+                            {% elif lv.status == 'REJECTED' %}
+                            <span class="badge bg-danger">Rejected</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td><small class="text-muted">{{ lv.review_comment|default:"--" }}</small></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-airplane fs-1 d-block mb-2 text-secondary"></i>
+                            You have not submitted any leave applications yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3">
+        <small class="text-muted">Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} applications</small>
+        <ul class="pagination pagination-sm mb-0">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Previous</span></li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Next</span></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

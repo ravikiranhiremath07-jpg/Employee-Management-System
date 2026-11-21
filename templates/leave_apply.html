@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Apply for Leave - EMS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a href="{% url 'my_leaves' %}">My Leaves</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Apply for Leave</li>
+        </ol>
+    </nav>
+    <h3 class="fw-bold">Apply for Leave</h3>
+    <p class="text-muted small">Submit your leave application for approval by your HR Manager and Administrator.</p>
+</div>
+
+<!-- Remaining Leave Balances Summary -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+            <span class="text-muted small fw-bold">CASUAL LEAVE BALANCE</span>
+            <div class="fs-2 fw-bold text-primary">{{ balance.casual_leave }} Days</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+            <span class="text-muted small fw-bold">SICK LEAVE BALANCE</span>
+            <div class="fs-2 fw-bold text-success">{{ balance.sick_leave }} Days</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+            <span class="text-muted small fw-bold">EARNED LEAVE BALANCE</span>
+            <div class="fs-2 fw-bold text-warning">{{ balance.earned_leave }} Days</div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card form-card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-file-earmark-text me-2"></i>Leave Request Form</h5>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="card-body p-4">
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label" for="id_leave_type">Leave Type <span class="text-danger">*</span></label>
+                        {{ form.leave_type }}
+                        {% if form.leave_type.errors %}<div class="text-danger small">{{ form.leave_type.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="id_start_date">Start Date <span class="text-danger">*</span></label>
+                            {{ form.start_date }}
+                            {% if form.start_date.errors %}<div class="text-danger small">{{ form.start_date.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="id_end_date">End Date <span class="text-danger">*</span></label>
+                            {{ form.end_date }}
+                            {% if form.end_date.errors %}<div class="text-danger small">{{ form.end_date.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="id_reason">Detailed Reason for Leave <span class="text-danger">*</span></label>
+                        {{ form.reason }}
+                        {% if form.reason.errors %}<div class="text-danger small">{{ form.reason.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="card-footer bg-light p-3 d-flex justify-content-end gap-2">
+                    <a href="{% url 'my_leaves' %}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-4"><i class="bi bi-send-fill me-1"></i> Submit Leave Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

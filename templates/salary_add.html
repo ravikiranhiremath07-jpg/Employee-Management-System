@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - EMS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a href="{% url 'salary_list' %}">Payroll</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+        </ol>
+    </nav>
+    <h3 class="fw-bold">{{ title }}</h3>
+    <p class="text-muted small">Record monthly salary components. Formula: <strong>Net Salary = Basic Salary + Allowances - Deductions</strong>.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card form-card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-cash-stack me-2"></i>Salary Information</h5>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="card-body p-4">
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label" for="id_employee">Employee <span class="text-danger">*</span></label>
+                        {{ form.employee }}
+                        {% if form.employee.errors %}<div class="text-danger small">{{ form.employee.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="id_month">Salary Month <span class="text-danger">*</span></label>
+                            {{ form.month }}
+                            {% if form.month.errors %}<div class="text-danger small">{{ form.month.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="id_year">Salary Year <span class="text-danger">*</span></label>
+                            {{ form.year }}
+                            {% if form.year.errors %}<div class="text-danger small">{{ form.year.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label" for="id_basic_salary">Basic Salary (₹) <span class="text-danger">*</span></label>
+                            {{ form.basic_salary }}
+                            {% if form.basic_salary.errors %}<div class="text-danger small">{{ form.basic_salary.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="id_allowances">Allowances (₹)</label>
+                            {{ form.allowances }}
+                            {% if form.allowances.errors %}<div class="text-danger small">{{ form.allowances.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="id_deductions">Deductions (₹)</label>
+                            {{ form.deductions }}
+                            {% if form.deductions.errors %}<div class="text-danger small">{{ form.deductions.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Live Calculated Net Salary Banner -->
+                    <div class="alert alert-primary d-flex align-items-center justify-content-between p-3 my-3">
+                        <div>
+                            <span class="small text-uppercase fw-bold text-muted d-block">Automatic Net Salary Calculation:</span>
+                            <div class="fs-4 fw-bold text-primary">₹<span id="netSalaryLiveDisplay">0.00</span></div>
+                        </div>
+                        <span class="badge bg-primary px-3 py-2">Net = Basic + Allowances - Deductions</span>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="id_payment_status">Payment Status <span class="text-danger">*</span></label>
+                            {{ form.payment_status }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="id_payment_date">Disbursement / Payment Date</label>
+                            {{ form.payment_date }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="id_notes">Payment Notes / Remarks</label>
+                        {{ form.notes }}
+                    </div>
+                </div>
+                <div class="card-footer bg-light p-3 d-flex justify-content-end gap-2">
+                    <a href="{% url 'salary_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check-circle me-1"></i> Save Salary Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
